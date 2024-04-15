@@ -42,7 +42,7 @@ model_name = "base"
 model = whisper.load_model(model_name, device=device)
 
 # Ensure the audio directory exists
-os.makedirs("audio", exist_ok=True)
+# os.makedirs("audio", exist_ok=True)
 
 @app.route("/synthesize", methods=["POST"])
 def synthesize():

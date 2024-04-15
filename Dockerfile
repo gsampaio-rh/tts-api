@@ -4,9 +4,6 @@ ARG WORK_DIR=/tts
 
 WORKDIR $WORK_DIR
 
-RUN chgrp -R 0 $WORK_DIR && \
-    chmod -R g+rwX $WORK_DIR
-
 # RUN useradd -ms /bin/bash app
 
 # Copy application files
@@ -14,6 +11,9 @@ COPY app.py $WORK_DIR
 COPY requirements.txt $WORK_DIR
 
 RUN mkdir -p $WORK_DIR/audio $WORK_DIR/uploads
+
+RUN chgrp -R 0 $WORK_DIR && \
+    chmod -R g+rwX $WORK_DIR
 
 # Install Python dependencies
 RUN pip3 install -r requirements.txt

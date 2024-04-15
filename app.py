@@ -20,8 +20,8 @@ logging.basicConfig(
 # Initialize the Flask application
 app = Flask(__name__)
 
-app.config["UPLOAD_FOLDER"] = "/deployment"
-app.config["AUDIO_FOLDER"] = "/deployment"
+app.config["UPLOAD_FOLDER"] = "/deployment/uploads"
+app.config["AUDIO_FOLDER"] = "/deployment/audio"
 
 # Additional logging setup if you want to log to console as well
 console = logging.StreamHandler()
@@ -87,8 +87,8 @@ def transcribe_audio():
         result = model.transcribe(filepath)
         logging.info(f"Transcription successful: {result['text']}")
 
-        os.remove(filepath)
-        logging.info(f"File deleted after processing: {filepath}")
+        # os.remove(filepath)
+        # logging.info(f"File deleted after processing: {filepath}")
 
         return (
             jsonify(

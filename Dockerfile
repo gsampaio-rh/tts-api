@@ -2,6 +2,9 @@ FROM registry.access.redhat.com/ubi8/python-39:latest
 
 ARG WORK_DIR=/tts
 
+RUN chgrp -R 0 $WORK_DIR && \
+    chmod -R g+rwX $WORK_DIR
+
 WORKDIR $WORK_DIR
 
 # RUN useradd -ms /bin/bash app
@@ -11,9 +14,6 @@ COPY app.py $WORK_DIR
 COPY requirements.txt $WORK_DIR
 
 RUN mkdir -p $WORK_DIR/audio $WORK_DIR/uploads
-
-RUN chgrp -R 0 $WORK_DIR/audio $WORK_DIR/uploads && \
-    chmod -R g+rwX $WORK_DIR/audio $WORK_DIR/uploads
 
 # Install Python dependencies
 RUN pip3 install -r requirements.txt

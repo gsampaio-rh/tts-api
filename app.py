@@ -1,4 +1,5 @@
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, make_response
+from flask_cors import CORS
 import torch
 from TTS.api import TTS
 import os
@@ -19,6 +20,18 @@ logging.basicConfig(
 
 # Initialize the Flask application
 app = Flask(__name__)
+
+# This setup allows for more fine-grained control over CORS headers.
+CORS(
+    app,
+    resources={
+        r"/synthesize": {
+            "origins": "*",  # Be cautious with using '*', specify domains in production
+            "methods": ["POST", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+        }
+    },
+)
 
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["AUDIO_FOLDER"] = "audio"
@@ -44,25 +57,38 @@ model = whisper.load_model(model_name, device=device)
 # Ensure the audio directory exists
 # os.makedirs("audio", exist_ok=True)
 
-@app.route("/synthesize", methods=["POST"])
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "*")
+    response.headers.add("Access-Control-Allow-Methods", "*")
+    return response
+
+
+@app.route("/synthesize", methods=["POST", "OPTIONS"])
 def synthesize():
-    try:
-        data = request.json
-        text = data.get("text", "")
-        logging.info(f"Received synthesis request: {text}")
+    if request.method == "OPTIONS":
+        # This is to ensure that Flask-CORS handles OPTIONS requests properly.
+        return _build_cors_preflight_response()
+    elif request.method == "POST":
+        try:
+            data = request.json
+            text = data.get("text", "")
+            logging.info(f"Received synthesis request: {text}")
 
-        unique_id = uuid.uuid4()
-        file_name = f"{unique_id}.wav"
-        # Use these paths in your route
-        filepath = os.path.join(app.config["AUDIO_FOLDER"], file_name)
+            unique_id = uuid.uuid4()
+            file_name = f"{unique_id}.wav"
+            # Use these paths in your route
+            filepath = os.path.join(app.config["AUDIO_FOLDER"], file_name)
 
-        api.tts_to_file(text, file_path=filepath)
-        logging.info(f"Generated speech file saved to {filepath}")
+            api.tts_to_file(text, file_path=filepath)
+            logging.info(f"Generated speech file saved to {filepath}")
 
-        return send_file(filepath, as_attachment=True, download_name=f"{unique_id}.wav")
-    except Exception as e:
-        logging.error(f"Error in synthesis: {str(e)}", exc_info=True)
-        return {"error": str(e)}, 500
+            return send_file(filepath, as_attachment=True, download_name=f"{unique_id}.wav")
+        except Exception as e:
+            logging.error(f"Error in synthesis: {str(e)}", exc_info=True)
+            return {"error": str(e)}, 500
+        pass
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe_audio():

@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 import torch
 from TTS.api import TTS
 import os
@@ -48,6 +48,39 @@ def synthesize():
         )
     except Exception as e:
         return {"error": str(e)}, 500
+
+@app.route("/transcribe", methods=["POST"])
+def transcribe_audio():
+    if "audio" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["audio"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    if file:
+        # Ensure the upload directory exists
+        os.makedirs("uploads", exist_ok=True)
+        filepath = os.path.join("uploads", file.filename)
+        file.save(filepath)
+
+        # Transcribe the audio file using Whisper
+        result = model.transcribe(filepath, language='english')
+
+        # Optionally, delete the file after processing if not needed
+        os.remove(filepath)
+
+        return (
+            jsonify(
+                {
+                    "message": "File uploaded and transcribed successfully",
+                    "transcription": result["text"],
+                }
+            ),
+            200,
+        )
+
+    return jsonify({"error": "File upload failed"}), 500
 
 # @app.route("/transcribe", methods=["POST"])
 # def transcribe($AUDIO_INPUT):

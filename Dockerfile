@@ -18,7 +18,6 @@ RUN chown -R 1001 $WORK_DIR && \
     chgrp -R 0 $WORK_DIR && \
     chmod -R g+rwX $WORK_DIR
 
-
 # Install Python dependencies
 RUN pip3 install -r requirements.txt
 

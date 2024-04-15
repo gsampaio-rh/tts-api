@@ -9,10 +9,6 @@ COPY requirements.txt /deployment
 # Install Python dependencies
 RUN pip3 install -r requirements.txt
 
-# Create directories and set appropriate permissions
-RUN mkdir /deployment/audio /deployment/uploads && \
-    chmod 777 /deployment/audio /deployment/uploads
-
 # Expose the port Flask is running on
 EXPOSE 5000
 

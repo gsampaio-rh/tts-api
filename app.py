@@ -22,8 +22,8 @@ logging.basicConfig(
 # Initialize the Flask application
 app = Flask(__name__)
 
-app.config["UPLOAD_FOLDER"] = "/deployment/uploads"
-app.config["AUDIO_FOLDER"] = "/deployment/audio"
+app.config["UPLOAD_FOLDER"] = "/deployment"
+app.config["AUDIO_FOLDER"] = "/deployment"
 
 # Additional logging setup if you want to log to console as well
 console = logging.StreamHandler()

@@ -22,6 +22,9 @@ logging.basicConfig(
 # Initialize the Flask application
 app = Flask(__name__)
 
+app.config["UPLOAD_FOLDER"] = "/deployment/uploads"
+app.config["AUDIO_FOLDER"] = "/deployment/audio"
+
 # Additional logging setup if you want to log to console as well
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
@@ -51,13 +54,15 @@ def synthesize():
         logging.info(f"Received synthesis request: {text}")
 
         unique_id = uuid.uuid4()
-        file_path = f"audio/{unique_id}.wav"
+        file_name = f"{unique_id}.wav"
+        # Use these paths in your route
+        filepath = os.path.join(app.config["AUDIO_FOLDER"], file_name)
 
-        api.tts_to_file(text, file_path=file_path)
-        logging.info(f"Generated speech file saved to {file_path}")
+        api.tts_to_file(text, file_path=filepath)
+        logging.info(f"Generated speech file saved to {filepath}")
 
         return send_file(
-            file_path, as_attachment=True, attachment_filename=f"{unique_id}.wav"
+            filepath, as_attachment=True, attachment_filename=f"{unique_id}.wav"
         )
     except Exception as e:
         logging.error(f"Error in synthesis: {str(e)}", exc_info=True)
@@ -76,7 +81,8 @@ def transcribe_audio():
 
     try:
         os.makedirs("uploads", exist_ok=True)
-        filepath = os.path.join("uploads", file.filename)
+        # Use these paths in your route
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(filepath)
         logging.info(f"File uploaded to {filepath}")
 
@@ -100,4 +106,4 @@ def transcribe_audio():
         return jsonify({"error": "File upload failed"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

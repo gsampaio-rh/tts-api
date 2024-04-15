@@ -2,17 +2,21 @@ FROM registry.access.redhat.com/ubi8/python-39:latest
 
 WORKDIR /deployment
 
+# Copy application files
 COPY app.py /deployment
-# COPY templates/* /deployment/templates/
 COPY requirements.txt /deployment
 
+# Install Python dependencies
 RUN pip3 install -r requirements.txt
 
+# Create directories and set appropriate permissions
+RUN mkdir /deployment/audio /deployment/uploads && \
+    chmod 777 /deployment/audio /deployment/uploads
+
+# Expose the port Flask is running on
 EXPOSE 5000
 
-#WORKDIR /openshift
-#RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar zx && \
-#    mv oc /usr/local/bin/ && \
-#    rm -f openshift-client-linux.tar.gz
+# Ensure the container runs as a non-root user
+USER 1001
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]

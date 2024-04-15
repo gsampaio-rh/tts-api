@@ -9,8 +9,6 @@ import logging
 # Set up basic configuration for logging
 logging.basicConfig(
     level=logging.DEBUG,
-    filename="app.log",
-    filemode="a",
     format="%(name)s - %(levelname)s - %(message)s",
 )
 

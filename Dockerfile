@@ -12,8 +12,8 @@ COPY requirements.txt $WORK_DIR
 
 RUN mkdir -p $WORK_DIR/audio $WORK_DIR/uploads
 
-RUN chgrp -R 0 $WORK_DIR && \
-    chmod -R g+rwX $WORK_DIR
+RUN chgrp -R 0 $WORK_DIR/audio $WORK_DIR/uploads && \
+    chmod -R g+rwX $WORK_DIR/audio $WORK_DIR/uploads
 
 # Install Python dependencies
 RUN pip3 install -r requirements.txt

@@ -4,9 +4,8 @@ ARG WORK_DIR=/tts
 
 WORKDIR $WORK_DIR
 
-RUN chown 1001 /tts \
-    && chmod "g+rwX" /tts \
-    && chown 1001:root /tts
+RUN chgrp -R 0 $WORK_DIR && \
+    chmod -R g+rwX $WORK_DIR
 
 # RUN useradd -ms /bin/bash app
 
@@ -24,5 +23,6 @@ EXPOSE 5000
 
 # Ensure the container runs as a non-root user
 USER 1001
+RUN chown -R 1001:0 $WORK_DIR/audio $WORK_DIR/uploads
 
 CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]

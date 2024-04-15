@@ -20,8 +20,8 @@ logging.basicConfig(
 # Initialize the Flask application
 app = Flask(__name__)
 
-app.config["UPLOAD_FOLDER"] = "/deployment/uploads"
-app.config["AUDIO_FOLDER"] = "/deployment/audio"
+app.config["UPLOAD_FOLDER"] = "uploads"
+app.config["AUDIO_FOLDER"] = "audio"
 
 # Additional logging setup if you want to log to console as well
 console = logging.StreamHandler()
@@ -59,9 +59,7 @@ def synthesize():
         api.tts_to_file(text, file_path=filepath)
         logging.info(f"Generated speech file saved to {filepath}")
 
-        return send_file(
-            filepath, as_attachment=True, attachment_filename=f"{unique_id}.wav"
-        )
+        return send_file(filepath, as_attachment=True, download_name=f"{unique_id}.wav")
     except Exception as e:
         logging.error(f"Error in synthesis: {str(e)}", exc_info=True)
         return {"error": str(e)}, 500
